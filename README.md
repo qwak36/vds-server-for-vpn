@@ -14,10 +14,12 @@ Add an another key to our server
 
 # Install Wireguard for VPN
 
-`apt install wireguard`
+```bash
+sudo apt install wireguard
+```
 
 `wg genkey | tee /etc/wireguard/server_privatekey | wg pubkey | tee /etc/wireguard/server_publickey`
-Generating server keys  
+Generating the server keys  
 
 `chmod 600 /etc/wireguard/server_privatekey`
 Set permissions for the private key
@@ -83,3 +85,78 @@ AllowedIPs = 0.0.0.0/0
 PersistentKeepalive = 20
 ```
 Now client_wb.conf export in wireguard app in PC or phone
+
+# Installing AdGuard Home
+AdGuard Home acts as a **local filtering DNS server** and an **AD/Tracker blocker**.
+```bash
+# We disable the built‑in DNS resolver. 
+systemctl stop systemd-resolved 
+systemctl disable systemd-resolved 
+
+# We set a temporary external DNS so that the server doesn’t lose connection. 
+echo "nameserver 1.1.1.1" > /etc/resolv.conf
+```
+
+Official auto‑installation script
+```bash
+curl -s -S -L lhttps://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh
+```
+
+Open the browser on your PC and go to the address:
+`[http://72.56.100.12:3000](http://72.56.100.12:3000)`
+
+In your VPN settings, set our new DNS server.
+# Deploying Nginx on the server
+
+```bash
+sudo apt install nginx 
+```
+
+```bash
+systemctl status nginx
+```
+
+_(The status must be `active (running)`)_. if open IP our VDS (`[http://72.56.100.12](http://72.56.100.12)`) in browser, will see standart a page _"Welcome to nginx!"_.
+
+Settings Reverse Proxy for AdGuard Home
+Let’s make it so that Nginx takes the AdGuard Home control panel from the local port `3000` and serves it on the standard HTTP port (`80`).
+```bash
+nano /etc/nginx/sites-available/adguard
+```
+
+Insert the following settings into it (replace `<ip-server>` with your VDS IP):
+```bash
+server {
+    listen 80;
+    server_name <ip-server>; # your ip or domain
+    
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    
+        # Support WebSockets (It is necessary for updating statistics in real time.)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        }
+    }
+```
+
+```bash
+ln -s /etc/nginx/sites-available/adguard /etc/nginx/sites-enabled/
+rm /etc/nginx/sites-enabled/default
+```
+
+Check configuration Nginx on errors:
+```bash
+nginx -t
+```
+ 
+reload nginx
+```bash
+systemctl restart nginx
+```
+
