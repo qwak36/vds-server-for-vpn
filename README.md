@@ -107,6 +107,16 @@ Open the browser on your PC and go to the address:
 
 In your VPN settings, set our new DNS server.
 # Deploying Nginx on the server
+We will install Nginx on the VDS primarily as a reverse proxy server (Reverse Proxy).
+
+1. Convenient access to web panels via the standard port.
+Without Nginx, to access the AdGuard Home web interface, you would need to enter the IP address with a non‑standard port specified:
+http://<server_IP>:3000
+
+With Nginx configured, you can simply access it using the IP address or domain via the standard port 80 (HTTP) or 443 (HTTPS):
+http://<IP_server>/
+
+Nginx receives this request on port 80 and, unnoticed by you, redirects it inside the server to 10.0.0.1:3000 (where AdGuard Home is listening).
 
 ```bash
 sudo apt install nginx 
