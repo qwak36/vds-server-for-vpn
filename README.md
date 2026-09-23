@@ -38,7 +38,7 @@ PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -
 ```
 We insert in config file
 
-In string of PostUp and Postdown, replace network interface eth0 in your mine, if necessary
+In string of PostUp and Postdown, replace network interface eth0 in your mine, if necessary.
 Find your mine network interface can with help `ip a`
 
 Insert the contents of the `/etc/wireguard/server_privatekey` file instead of `<server_privatekey>`.  
