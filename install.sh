@@ -24,7 +24,7 @@ apt update
 apt install -y amneziawg amneziawg-tools nginx
 curl -s -S -L https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh -s -- -v
 
-AWG_FILE="/etc/amnezia/amneziawg/awg0.conf"
+AWG_CONF="/etc/amnezia/amneziawg/awg0.conf"
 AMNEZIA_DIR="/etc/amnezia/amneziawg"
 SERVER_PRIV_KEY=$(awg genkey)
 SERVER_PUB_KEY=$(echo "$SERVER_PRIV_KEY" | awg pubkey)
@@ -38,7 +38,7 @@ if [ ! -d "$AMNEZIA_DIR" ]; then
 mkdir -p /etc/amnezia/amneziawg
 fi
 
-if [ ! -f "$AWG_FILE" ]; then
+if [ ! -f "$AWG_CONF" ]; then
 cat <<EOF > /etc/amnezia/amneziawg/awg0.conf
 [Interface]
 PrivateKey = ${SERVER_PRIV_KEY}
